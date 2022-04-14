@@ -1,14 +1,24 @@
-FROM ubuntu:18.04
+FROM golang:1.18 as go-builder
+ADD http://www.math.utah.edu/~mayer/linux/nbench-byte-2.2.3.tar.gz /root/
+RUN cd /root && tar xzf /root/nbench-byte-2.2.3.tar.gz
+RUN cd /root/nbench-byte-2.2.3/ && make
+RUN git clone https://github.com/AmadeusITGroup/cpubench1A
+RUN cd cpubench1A && make build
 
-LABEL maintainer="Matthieu Dalstein"
+FROM ubuntu:18.04
+LABEL maintainer="Matthieu Dalstein <github@dalmat.net>"
 
 ENV NODE=UNDEFINED
 
-ADD nbench-ubuntu18.04 /opt/bin/nbench-ubuntu18.04
-ADD NNET.DAT /opt/var/lib/nbench/NNET.DAT
-
 WORKDIR /opt/var/lib/nbench
 
-RUN apt update && apt upgrade -y && apt install -y sysbench p7zip-full && apt clean
+RUN apt update && apt upgrade -y && apt install -y sysbench p7zip && apt clean
+ADD bench.sh /opt/bin/bench.sh
 
-ENTRYPOINT [ "bash", "-c", "if [ \"$NODE\" != \"UNDEFINED\" ]; then echo \"Launching nbench from $NODE\"; fi; /opt/bin/nbench-ubuntu18.04 && 7za b -mmt=1" ]
+
+COPY --from=go-builder /root/nbench-byte-2.2.3/nbench /opt/bin/
+COPY --from=go-builder /root/nbench-byte-2.2.3//NNET.DAT /opt/var/lib/nbench/NNET.DAT
+
+COPY --from=go-builder /go/cpubench1A/cpubench1a /opt/bin/
+
+ENTRYPOINT [ "/opt/bin/bench.sh" ]
