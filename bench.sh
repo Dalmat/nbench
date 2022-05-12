@@ -2,6 +2,8 @@
 
 if [ \"$NODE\" != \"UNDEFINED\" ]; then echo \"Launching nbench from $NODE\"; fi
 
+lscpu | grep "Model name"
+
 echo "Nbench single-theaded benchmark"
 /opt/bin/nbench | awk '/INDEX/' | tail -3
 
