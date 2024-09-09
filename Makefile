@@ -1,4 +1,5 @@
 VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo untagged)
+USER := dalmat
 
 .PHONY: run
 run: build
