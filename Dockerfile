@@ -13,7 +13,7 @@ WORKDIR /opt/var/lib/nbench
 
 ADD video.MP4 /opt/ffmpeg/
 
-RUN apt update && apt upgrade -y && apt install -y sysbench p7zip ffmpeg time && apt clean
+RUN apt update && apt upgrade -y && apt install --no-install-recommends --no-install-suggests -y sysbench p7zip ffmpeg time && apt clean
 
 COPY --from=go-builder /root/nbench-byte-2.2.3/nbench /opt/bin/
 COPY --from=go-builder /root/nbench-byte-2.2.3//NNET.DAT /opt/var/lib/nbench/NNET.DAT
